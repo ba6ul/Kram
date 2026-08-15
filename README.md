@@ -157,10 +157,6 @@ My%20Cool%20Clip%20(final)%20v2.mp4   ->   My Cool Clip (final) v2.mp4
 
 Add your own by making a folder in `_Templates/` and an entry in `config.json`.
 
-Template structures aren't final on day one — they get reshaped as real projects
-reveal what's actually needed. See `DECISIONS.md` for why each folder exists
-before restructuring one.
-
 ## Customising
 
 - **Structure** — edit the folders in `_Templates/` in Explorer. `_Base/` is
