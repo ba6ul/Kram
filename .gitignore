@@ -1,0 +1,14 @@
+# Personal settings - everyone's paths differ, so this never gets committed.
+config.local.json
+
+# Real template project files can be large; contributors supply their own.
+# Delete these lines if you want to ship starter templates with the repo.
+_Templates/**/*.aep
+_Templates/**/*.aepx
+_Templates/**/*.drp
+_Templates/**/*.psd
+_Templates/**/*.psb
+
+# Windows
+Thumbs.db
+desktop.ini

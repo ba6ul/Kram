@@ -1,0 +1,6 @@
+﻿{
+  "_comment": "Copy this to config.local.json and set what you want. Only include the keys you are overriding - everything else falls back to config.json.",
+
+  "projectsRoot": "D:\\Projects",
+  "defaultLocale": "hi-Latn"
+}

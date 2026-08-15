@@ -1,0 +1,26 @@
+{
+  "code": "hi-Latn",
+  "name": "Hindi (Latin script / romanised)",
+
+  "_comment": "Hindi folder names written in Latin script - readable for anyone whose keyboard or software is happier with ASCII paths. Any path segment not listed here passes through unchanged, so you only translate what you want to.",
+
+  "folders": {
+    "04_images": "04_chitra",
+    "05_video": "05_chalchitra",
+    "06_audio": "06_awaaj",
+
+    "Voiceover": "Swar",
+    "Music": "Sangeet",
+    "SFX": "Dhwani",
+    "Raw": "Kaccha",
+    "Edited": "Sampadit",
+
+    "01_source": "01_mool",
+    "02_edited": "02_sampadit",
+    "03_export": "03_niryat",
+    "04_presets": "04_purvniyat",
+
+    "09_fonts": "09_akshar",
+    "10_docs": "10_dastavez"
+  }
+}

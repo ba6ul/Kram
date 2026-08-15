@@ -1,0 +1,8 @@
+{
+  "code": "en",
+  "name": "English",
+
+  "_comment": "Canonical names are already English, so this pack is empty. It exists so 'en' shows up when listing available languages.",
+
+  "folders": {}
+}

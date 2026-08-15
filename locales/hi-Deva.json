@@ -1,0 +1,26 @@
+{
+  "code": "hi-Deva",
+  "name": "Hindi (Devanagari script)",
+
+  "_comment": "Hindi folder names in Devanagari. Numeric prefixes stay ASCII so folders still sort correctly in Explorer. Any path segment not listed here passes through unchanged.",
+
+  "folders": {
+    "04_images": "04_चित्र",
+    "05_video": "05_चलचित्र",
+    "06_audio": "06_आवाज़",
+
+    "Voiceover": "स्वर",
+    "Music": "संगीत",
+    "SFX": "ध्वनि",
+    "Raw": "कच्चा",
+    "Edited": "संपादित",
+
+    "01_source": "01_मूल",
+    "02_edited": "02_संपादित",
+    "03_export": "03_निर्यात",
+    "04_presets": "04_पूर्वनियत",
+
+    "09_fonts": "09_अक्षर",
+    "10_docs": "10_दस्तावेज़"
+  }
+}
