@@ -71,9 +71,17 @@ only your user, and comes off cleanly with **Uninstall right-click menu.bat**.
 Re-run the installer after adding a project type to `config.json` — the *New with
 Kram* submenu is built from it.
 
+Entries use icons already on your system (`imageres.dll`/`shell32.dll`) —
+nothing is shipped or downloaded, so there's no broken-icon risk if the DLLs
+move between Windows versions.
+
 > **Windows 11:** these entries live under **"Show more options"** (or press
 > Shift+F10 instead of right-clicking). Appearing in the first-level Windows 11
-> menu requires a signed MSIX shell extension, which Kram doesn't ship.
+> menu requires a signed MSIX shell extension, which Kram doesn't ship. If you'd
+> rather skip the extra click everywhere (not just for Kram), run **Install
+> classic right-click menu.bat** once to restore the pre-Windows 11 full menu —
+> it's Microsoft's own documented registry escape hatch, reversible with
+> **Uninstall classic right-click menu.bat**. Both restart Explorer to apply.
 
 ## Setup
 
