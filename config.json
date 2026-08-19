@@ -124,7 +124,16 @@
         ".png": "00_inbox",
         ".jpg": "00_inbox",
         ".jpeg": "00_inbox",
-        ".webp": "00_inbox"
+        ".webp": "00_inbox",
+        ".env": "05_credentials",
+        ".jks": "05_credentials",
+        ".keystore": "05_credentials",
+        ".p12": "05_credentials",
+        ".p8": "05_credentials",
+        ".pem": "05_credentials",
+        ".key": "05_credentials",
+        ".cer": "05_credentials",
+        ".mobileprovision": "05_credentials"
       }
     }
   }

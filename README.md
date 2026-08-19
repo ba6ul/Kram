@@ -153,7 +153,7 @@ My%20Cool%20Clip%20(final)%20v2.mp4   ->   My Cool Clip (final) v2.mp4
 | `Shorts` | Vertical/short-form. Same plus thumbnails and a hooks file. |
 | `Photo` | Photo editing. source / edited / export / presets. |
 | `UI` | App UI design. design / references / wireframes / exports / prototypes. |
-| `App` | App store & social assets. icon / screenshots / social / logo, each source + export, plus an inbox for unsorted drops. |
+| `App` | App store & social assets. icon / screenshots / social / logo, each source + export, plus an inbox for unsorted drops and a credentials folder for signing keys/`.env` files. |
 
 Add your own by making a folder in `_Templates/` and an entry in `config.json`.
 
