@@ -16,6 +16,12 @@
 
   "sequenceMinFrames": 3,
 
+  "_freeFolders": "Never moved, never looked inside. 00_DROP_HERE is where every render/save/export goes. 07_export is kept only so projects made before 00_DROP_HERE existed stay untouched.",
+  "freeFolders": [
+    "00_DROP_HERE",
+    "07_export"
+  ],
+
   "defaultRules": {
     ".aep": "01_After_effects",
     ".aepx": "01_After_effects",

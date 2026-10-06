@@ -26,13 +26,20 @@ files worth organising.
 ## The loop
 
 1. Start working. Create nothing.
-2. Draft done → run **New Long project.bat** (or Shorts / Photo / UI). Name it.
+2. Draft done → run **New project\New Long project.bat** (or Shorts / Photo / UI
+   / App). Name it.
 3. Drop everything you're working with into the project root.
 4. Run **Organise.bat** from inside the project. It files everything.
 5. Keep working.
 6. More files pile up in the root → run **Organise.bat** again.
 7. Repeat forever. Already-filed folders are never disturbed.
 8. Finished → run **Tidy (final cleanup).bat** for a last pass before archiving.
+
+Every render, save, and export goes into **`00_DROP_HERE`** — test renders, half
+renders, the final, whatever name it came out with. There's no rule about what
+goes where inside it, on purpose: rules you have to remember mid-edit are rules
+you eventually stop following. Kram never moves anything in there and never
+looks inside, because a render you dropped there may already be on a timeline.
 
 A project mid-loop looks like this, and Kram only touches the top group:
 
@@ -42,6 +49,7 @@ My Video/
 ├── downloaded-image-weird-name.png    <- new
 ├── random-folder/                     <- new
 │
+├── 00_DROP_HERE/                      <- your renders, never touched
 ├── 01_After_effects/                  <- already organised, left alone
 ├── 05_video/                          <- already organised, left alone
 └── 06_audio/                          <- already organised, left alone
@@ -55,33 +63,57 @@ timestamps, nothing that can drift out of sync. Re-running is always safe.
 
 ## Right-click menu (optional)
 
-Run **Install right-click menu.bat** once and you get:
+Double-click **Setup\Install.bat** once and you get:
 
-- **Right-click empty space** in any folder → *New with Kram* → Long / Shorts /
-  Photo / UI. The project is created right there, in the folder you're standing in.
-- **Right-click a folder** → *Kram* → Organise / Preview / Organise + clean up
-  filenames / Tidy.
+- **Right-click empty space** in any folder → *Kram — New project* → Long /
+  Shorts / Photo / UI / App. The project is created right there, in the folder
+  you're standing in.
+- **Right-click a folder** → *Kram* → Organise / Preview / Organise + rename /
+  Tidy.
+
+Both sit at the top of the menu between separators, with Kram's own icons, so
+they don't get lost among every other app's entries.
 
 *Preview* is the dry run — it prints exactly what would move and then stops
 without touching anything. Useful the first time you point Kram at a folder full
 of unfamiliar downloads.
 
 Everything is written under `HKCU`, so it needs no administrator rights, affects
-only your user, and comes off cleanly with **Uninstall right-click menu.bat**.
-Re-run the installer after adding a project type to `config.json` — the *New with
-Kram* submenu is built from it.
+only your user, and comes off cleanly with **Setup\Uninstall.bat**. Run
+Install.bat again after adding a project type to `config.json` — the *New
+project* submenu is built from it.
 
-Entries use icons already on your system (`imageres.dll`/`shell32.dll`) —
-nothing is shipped or downloaded, so there's no broken-icon risk if the DLLs
-move between Windows versions.
+> **Windows 11:** these entries live under **"Show more options"** (or
+> Shift+Right-click). Install.bat asks whether to switch to the full, classic
+> right-click menu so Kram shows on the first click — Microsoft's own documented
+> registry escape hatch. It changes the menu for every app and restarts Explorer
+> once, so it's a question, never automatic. Uninstall.bat offers to undo it.
+> Kram doesn't appear in Windows 11's compact first-level menu: that needs a
+> compiled shell extension, and Kram stays plain PowerShell.
 
-> **Windows 11:** these entries live under **"Show more options"** (or press
-> Shift+F10 instead of right-clicking). Appearing in the first-level Windows 11
-> menu requires a signed MSIX shell extension, which Kram doesn't ship. If you'd
-> rather skip the extra click everywhere (not just for Kram), run **Install
-> classic right-click menu.bat** once to restore the pre-Windows 11 full menu —
-> it's Microsoft's own documented registry escape hatch, reversible with
-> **Uninstall classic right-click menu.bat**. Both restart Explorer to apply.
+Everything else Setup needs lives in `Setup\_internal\` — you don't need to open
+it. Icons there are drawn by `Make-Icons.ps1` from the Windows icon font, nothing
+downloaded. To restyle them, edit the colours or symbols at the top of that
+script, run it, then run Install.bat again. If Explorer still shows old icons,
+it's caching them: restart Explorer or sign out and back in.
+
+## What's in this folder
+
+```
+Kram/
+├── New project/        double-click to create a project (Long, Shorts, Photo, UI, App)
+├── Setup/              Install.bat / Uninstall.bat for the right-click menu
+├── docs/               guides, e.g. render naming for After Effects / Resolve
+├── Organise.ps1        the tool itself
+├── config.json         sort rules and project types
+├── _Templates/         folder structure for each project type
+├── templates-support/  launchers copied into every new project
+└── locales/            folder-name language packs
+```
+
+`Organise.ps1` stays at the top on purpose: every project Kram has created, and
+the installed right-click menu, call it at this exact path. Moving it would break
+them all.
 
 ## Setup
 
@@ -153,11 +185,17 @@ a pile of unrelated stills for a sequence.
 My%20Cool%20Clip%20(final)%20v2.mp4   ->   My Cool Clip (final) v2.mp4
 ```
 
+## Render names
+
+Kram can file a render but can't tell you what `ksjhdfhas.mp4` was. Set up After
+Effects and DaVinci Resolve once so every render is named after its comp or
+timeline plus the date and time — see [docs/render-naming.md](docs/render-naming.md).
+
 ## Project types
 
 | Type | For |
 |---|---|
-| `Long` | Long-form video. Full AE/Resolve round-trip structure. |
+| `Long` | Long-form video. AE / Resolve / Photoshop project folders, footage, audio, cache. |
 | `Shorts` | Vertical/short-form. Same plus thumbnails and a hooks file. |
 | `Photo` | Photo editing. source / edited / export / presets. |
 | `UI` | App UI design. design / references / wireframes / exports / prototypes. |
@@ -183,7 +221,5 @@ Organise.ps1 -Verb tidy [-Path .] [-Apply]
 
 ## Not built yet
 
-- `archive` — strip regenerable intermediates (`07_export/AEtoDR`, `DRtoAE`,
-  `08_cache`) and zip the rest.
 - A top-level Windows 11 context menu entry (needs a signed MSIX shell extension).
 - Localised UI messages — only folder names are translated today.

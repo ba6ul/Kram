@@ -175,7 +175,21 @@ function Get-ManagedFolders {
         $top = ($dest -split '[\\/]')[0]
         [void]$names.Add($top)
     }
+
+    # Free folders are managed too - never swept up as a dropped folder - even
+    # in older projects whose template no longer creates them.
+    foreach ($f in (Get-FreeFolders $Config)) { [void]$names.Add($f) }
     return $names
+}
+
+# Free folders are where renders, saves and exports land, named however they
+# come out. Kram never moves them and never looks inside: anything in there may
+# be on a timeline, and moving it would take it offline.
+function Get-FreeFolders {
+    param($Config)
+    $set = New-Object System.Collections.Generic.HashSet[string] ([StringComparer]::OrdinalIgnoreCase)
+    foreach ($f in @($Config.freeFolders)) { if ($f) { [void]$set.Add($f) } }
+    return ,$set
 }
 
 function Get-Rules {
@@ -489,7 +503,9 @@ function Invoke-Sort {
     # --- deep pass (tidy) ---------------------------------------------------
     if ($Deep) {
         Write-Info "Deep scan - checking for strays inside managed folders..."
+        $free = Get-FreeFolders $Config
         foreach ($folder in $managed) {
+            if ($free.Contains($folder)) { continue }
             $fp = Join-Path $project $folder
             if (-not (Test-Path $fp)) { continue }
             Get-ChildItem $fp -File -Recurse -ErrorAction SilentlyContinue | ForEach-Object {

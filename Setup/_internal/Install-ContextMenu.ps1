@@ -1,9 +1,10 @@
 #Requires -Version 5.1
 <#
-    Adds Kram to the Windows Explorer right-click menu.
+    Adds Kram to the Windows Explorer right-click menu. Normally run via
+    Setup\Install.bat (Kram-Setup.ps1), not directly.
 
-      Right-click empty space in a folder  ->  New with Kram  ->  Long / Shorts / ...
-      Right-click a folder                 ->  Kram           ->  Organise / Preview / ...
+      Right-click empty space in a folder  ->  Kram - New project  ->  Long / Shorts / ...
+      Right-click a folder                 ->  Kram                ->  Organise / Preview / ...
 
     Everything is written under HKCU, so this needs no administrator rights and
     affects only the current user. Run with -Uninstall to remove it cleanly.
@@ -21,7 +22,8 @@ param(
 
 $ErrorActionPreference = 'Stop'
 
-$ToolRoot   = $PSScriptRoot
+# This installer lives in Setup\_internal\; the toolkit is two levels up.
+$ToolRoot   = Split-Path (Split-Path $PSScriptRoot -Parent) -Parent
 $ScriptPath = Join-Path $ToolRoot 'Organise.ps1'
 $PsExe      = Join-Path $PSHOME 'powershell.exe'
 
@@ -45,7 +47,7 @@ if ($Uninstall) {
 }
 
 if (-not (Test-Path $ScriptPath)) {
-    throw "Organise.ps1 not found next to this installer ($ScriptPath)."
+    throw "Organise.ps1 not found in the Kram folder ($ScriptPath)."
 }
 
 # Reinstalling should not merge with a previous layout, e.g. if a project type
@@ -68,6 +70,11 @@ function New-CascadeRoot {
     if ($Icon) {
         New-ItemProperty -Path $Key -Name 'Icon' -Value $Icon -PropertyType String -Force | Out-Null
     }
+    # Pin to the top of the menu and fence it off with separators, so it
+    # doesn't get lost among every other app's entries.
+    New-ItemProperty -Path $Key -Name 'Position' -Value 'Top' -PropertyType String -Force | Out-Null
+    New-ItemProperty -Path $Key -Name 'SeparatorBefore' -Value '' -PropertyType String -Force | Out-Null
+    New-ItemProperty -Path $Key -Name 'SeparatorAfter' -Value '' -PropertyType String -Force | Out-Null
     New-Item -Path (Join-Path $Key 'shell') -Force | Out-Null
 }
 
@@ -88,34 +95,37 @@ function New-CascadeItem {
     Set-ItemProperty -Path $cmdKey -Name '(Default)' -Value $command
 }
 
-# Icons are pulled from DLLs already on every Windows install - "path,index"
-# - so there is nothing to ship and nothing that can go missing. Indices were
-# picked by rendering shell32.dll/imageres.dll to a contact sheet and reading
-# off ones that actually look right; they are stable system icons, not magic
-# numbers, so they're safe to keep hardcoded.
-$ImageRes = "$env:SystemRoot\System32\imageres.dll"
-$Shell32  = "$env:SystemRoot\System32\shell32.dll"
-
-$TypeIcons = @{
-    Long   = "$ImageRes,8"    # film clip
-    Shorts = "$ImageRes,168"  # vertical play
-    Photo  = "$ImageRes,43"   # camera
-    UI     = "$Shell32,133"   # screen/monitor
-    App    = "$ImageRes,217"  # briefcase
+# Kram's own icons, drawn by Make-Icons.ps1 into this folder's icons\. System DLL
+# icons were used before, but their indices aren't stable across Windows
+# builds - the original picks drifted to a folder, magnifier, printer and
+# warning sign. A type without its own icon (e.g. one you add to config.json)
+# falls back to the Kram icon.
+$IconDir  = Join-Path $PSScriptRoot 'icons'
+function Get-KramIcon {
+    param([string]$Name)
+    $p = Join-Path $IconDir ("{0}.ico" -f $Name.ToLower())
+    if (Test-Path $p) { return $p }
+    return (Join-Path $IconDir 'kram.ico')
 }
-$DefaultTypeIcon = "$ImageRes,4"  # folder, for any custom type not listed above
+$KramIcon = Get-KramIcon 'kram'
 
-# ------------------------------------------- empty space: New with Kram ---
+# The K icon carries the branding; the label just says what it does. An em
+# dash, built from its char code so the script stays plain ASCII - Windows
+# PowerShell 5.1 misreads non-ASCII in a BOM-less script.
+$Dash = [char]0x2014
 
-New-CascadeRoot -Key $BackgroundKey -Label 'New with Kram' -Icon "$ImageRes,4"
+# ------------------------------------------- empty space: new project ---
+
+New-CascadeRoot -Key $BackgroundKey -Label "Kram $Dash New project" -Icon $KramIcon
 
 $i = 1
 foreach ($t in $types) {
-    $label = if ($t.Value.label) { $t.Value.label } else { $t.Name }
-    $icon  = if ($TypeIcons.ContainsKey($t.Name)) { $TypeIcons[$t.Name] } else { $DefaultTypeIcon }
+    # One word per entry (Long, Shorts, ...) - config.json's longer 'label'
+    # was too wordy to scan in a menu.
+    $icon  = Get-KramIcon $t.Name
     New-CascadeItem -ParentKey $BackgroundKey `
                     -Order ('{0:d2}_{1}' -f $i, $t.Name) `
-                    -Label $label `
+                    -Label $t.Name `
                     -Arguments ('-Verb new -Type {0} -Here -Path "%V" -Pause' -f $t.Name) `
                     -Icon $icon
     $i++
@@ -123,34 +133,32 @@ foreach ($t in $types) {
 
 # ------------------------------------------------ folder: Kram commands ---
 
-New-CascadeRoot -Key $FolderKey -Label 'Kram' -Icon "$ImageRes,156"
+New-CascadeRoot -Key $FolderKey -Label 'Kram' -Icon $KramIcon
 
 New-CascadeItem -ParentKey $FolderKey -Order '01_Organise' `
     -Label 'Organise' `
     -Arguments '-Verb sort -Path "%V" -Pause' `
-    -Icon "$ImageRes,227"
+    -Icon (Get-KramIcon 'organise')
 
 New-CascadeItem -ParentKey $FolderKey -Order '02_Preview' `
-    -Label 'Preview (show what would move)' `
+    -Label 'Preview' `
     -Arguments '-Verb sort -Path "%V" -DryRun -Pause' `
-    -Icon "$ImageRes,158"
+    -Icon (Get-KramIcon 'preview')
 
 New-CascadeItem -ParentKey $FolderKey -Order '03_Rename' `
-    -Label 'Organise + clean up filenames' `
+    -Label 'Organise + rename' `
     -Arguments '-Verb sort -Path "%V" -Rename -Pause' `
-    -Icon "$ImageRes,236"
+    -Icon (Get-KramIcon 'rename')
 
 New-CascadeItem -ParentKey $FolderKey -Order '04_Tidy' `
-    -Label 'Tidy (final cleanup check)' `
+    -Label 'Tidy' `
     -Arguments '-Verb tidy -Path "%V" -Pause' `
-    -Icon "$ImageRes,131"
+    -Icon (Get-KramIcon 'tidy')
 
 Write-Host ""
-Write-Host "Kram context menu installed for $env:USERNAME." -ForegroundColor Green
+Write-Host "Kram added to the right-click menu." -ForegroundColor Green
 Write-Host ""
-Write-Host "  Right-click empty space in a folder -> New with Kram"
+Write-Host "  Right-click empty space in a folder -> Kram $Dash New project"
 Write-Host "  Right-click a folder                -> Kram"
 Write-Host ""
-Write-Host "On Windows 11 both live under 'Show more options' (Shift+F10)." -ForegroundColor Yellow
-Write-Host "No restart needed. Re-run this after editing project types in config.json."
-Write-Host "Remove it any time with:  Install-ContextMenu.ps1 -Uninstall"
+Write-Host "Run Install.bat again after adding a project type to config.json."
